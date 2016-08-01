@@ -28,7 +28,7 @@ func (r RegexpTransport) RoundTrip(request *http.Request) (*http.Response, error
 		return nil, err
 	}
 
-	// Replace patterns only for "OK" responses.
+	// Replace substrings only in responses with ok status.
 	if response.StatusCode != http.StatusOK {
 		return response, nil
 	}

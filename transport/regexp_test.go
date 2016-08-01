@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/http/httputil"
+	"net/url"
 	"regexp"
 	"testing"
 )
@@ -15,15 +16,19 @@ func TestRegexpTransport(t *testing.T) {
 	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Lorem ipsum dolor set amet")
 	}))
-	defer ts.Close()
+	defer target.Close()
 
 	re := regexp.MustCompile("[I,i]psum")
-	handler := httputil.NewSingleHostReverseProxy(target.URLL)
+	targetURL, err := url.Parse(target.URL)
+	if err != nil {
+		t.Error(err)
+	}
+	handler := httputil.NewSingleHostReverseProxy(targetURL)
 	handler.Transport = NewRegexpTransport(re, "shmipsum")
 	proxy := httptest.NewServer(handler)
 	defer proxy.Close()
 
-	resp, err := http.Get(frontendProxy.URL)
+	resp, err := http.Get(proxy.URL)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,11 +43,11 @@ func TestRegexpTransport(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	if string(body) != "Lorem ipsum dolor set amet" {
+	if string(body) != "Lorem shmipsum dolor set amet\n" {
 		t.Errorf("wrong response body: %s", string(body))
 	}
 
-	if resp.ContentLength != 29 {
+	if resp.ContentLength != 30 {
 		t.Errorf("wrong response content length: %d", resp.ContentLength)
 	}
 }
