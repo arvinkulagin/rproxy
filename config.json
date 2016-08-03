@@ -1,6 +1,6 @@
 {
-	"address": "localhost:8888",
-	"target": "",
-	"pattern": "",
-	"replacement": ""
+	"address": "localhost:8889",
+	"target": "http://localhost:8888",
+	"pattern": "[I,i]psum",
+	"replacement": "shmipsum"
 }
